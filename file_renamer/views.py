@@ -51,20 +51,35 @@ class Window(QWidget, Ui_Window):
             initDir = str(Path.home())
         
         # allow the user to select one or more files and return a list of string-based paths to the selected files
-        files, filter = QFileDialog.getOpenFileNames(
-            self, "Choose Files to Rename", initDir, filter=FILTERS
-        )
+        # files, filter = QFileDialog.getOpenFileNames(
+        #     self, "Choose Files to Rename", initDir, filter=FILTERS
+        # )
 
         # if there is a selection get to work renaming
-        if len(files) > 0:
-            fileExtension = filter[filter.index("*") : -1]
-            self.extensionLabel.setText(fileExtension)
-            srcDirName = str(Path(files[0]).parent)
+        # if len(files) > 0:
+        #     fileExtension = filter[filter.index("*") : -1]
+        #     self.extensionLabel.setText(fileExtension)
+        #     srcDirName = str(Path(files[0]).parent)
+        #     self.dirEdit.setText(srcDirName)
+
+        #     for file in files:
+        #         self._files.append(Path(file))
+        #         self.srcFileList.addItem(file)
+
+        #     self._filesCount = len(self._files)
+
+        # allow the user to select one or more folders and return a list of string-based paths to the selected files
+        folder = QFileDialog.getExistingDirectory(self, "Select Folder to Rename Contents", initDir)
+
+        if len(folder) > 0:
+            srcDirName = str(Path(folder))
+            print(srcDirName)
             self.dirEdit.setText(srcDirName)
 
-            for file in files:
-                self._files.append(Path(file))
-                self.srcFileList.addItem(file)
+            for subfolder in Path(folder).iterdir():
+                if subfolder.is_dir():
+                    print(str(Path(subfolder)))
+                    self._files.append(Path(subfolder))
+                    self.srcFileList.addItem(str(subfolder))
 
             self._filesCount = len(self._files)
-
