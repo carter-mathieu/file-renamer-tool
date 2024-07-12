@@ -36,13 +36,37 @@ class Window(QWidget, Ui_Window):
 
     def _setupUI(self):
         self.setupUi(self)
+        self._updateStateWhenNoFiles()
+
+    def _updateStateWhenNoFiles(self):
+        self._filesCount = len(self._files)
+        self.loadFilesButton.setEnabled(True)
+        self.loadFilesButton.setFocus(True)
+        self.renameFilesButton.setEnabled(False)
+
+    def _updateStateWhenFilesLoaded(self):
+        self.renameFilesButton.setEnabled(True)
+
+    def _updateStateWhileRenaming(self):
+        self.loadFilesButton.setEnabled(False)
+        self.loadFilesButton.setFocus(False)
+        self.renameFilesButton.setEnabled(False)
+
+    def _updateStateWhenReady(self):
+        if self.manholeEdit.isChecked() or self.pipeSegmentEdit.isChecked():
+            self.renameFilesButton.setEnabled(True)
+        else:
+            self.renameFilesButton.setEnabled(False)
 
     # collect several signal and slot connections in one place. Makes possible to trigger loadFiles on button click
     def _connectSignalsSlots(self):
         self.loadFilesButton.clicked.connect(self.loadFiles)
         self.renameFilesButton.clicked.connect(self.renameFiles)
+        self.manholeEdit.clicked.connect(self._updateStateWhenReady)
+        self.pipeSegmentEdit.clicked.connect(self._updateStateWhenReady)
     
     def loadFiles(self):
+        self._updateStateWhenFilesLoaded()
         # clear the list widget on Load Files button click
         self.dstFileList.clear()
         # check if Last Source Directory element is populated
@@ -71,6 +95,7 @@ class Window(QWidget, Ui_Window):
     
     def renameFiles(self):
         self._runRenamerThread()
+        self._updateStateWhileRenaming()
     
     def _runRenamerThread(self):
         # check if user is renaming manhole folders or pipes
@@ -96,6 +121,7 @@ class Window(QWidget, Ui_Window):
         # Update state
         self._renamer.renamedFile.connect(self._updateStateWhenFileRenamed)
         self._renamer.progressed.connect(self._updateProgressBar)
+        self._renamer.finished.connect(self._updateStateWhenNoFiles)
         # Clean up
         self._renamer.finished.connect(self._thread.quit)
         self._renamer.finished.connect(self._renamer.deleteLater)
