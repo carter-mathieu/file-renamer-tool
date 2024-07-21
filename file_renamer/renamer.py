@@ -4,7 +4,7 @@
 """This module provides the enamer class to rename multiple files."""
 
 import time
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -31,16 +31,16 @@ class Renamer(QObject):
             pass
 
         if self._prefix == "manhole":
-            index = 1
             for fileNumber, file in enumerate(self._files, 1):
                 # skip the pipe segement folders
-                if str(file).count(self._schar) > 1:
+                if str(PurePath(file).name).count(self._schar) != 2:
                     newFile = file.parent.joinpath(
                         f"Skipped: {str(file)}"
                     )
                 else:
-                    temp = str(file).split(self._schar)
-                    new = self._schar.join(temp[:index])
+                    temp = str(PurePath(file).name).split(self._schar)
+                    join_array = (temp[0], temp[1])
+                    new = self._schar.join(join_array)
                     newFile = file.parent.joinpath(
                         f"{new}"
                     )
@@ -52,16 +52,16 @@ class Renamer(QObject):
             self.finished.emit()
         
         if self._prefix == "pipe":
-            index = 2
             for fileNumber, file in enumerate(self._files, 1):
                 # skip the manhole folders
-                if str(file).count(self._schar) > 2:
+                if str(PurePath(file).name).count(self._schar) < 3:
                     newFile = file.parent.joinpath(
                         f"Skipped: {str(file)}"
                     )
                 else:
-                    temp = str(file).split(self._schar)
-                    new = self._schar.join(temp[:index])
+                    temp = str(PurePath(file).name).split(self._schar)
+                    join_array = (temp[0], temp[1], temp[3])
+                    new = self._schar.join(join_array)
                     newFile = file.parent.joinpath(
                         f"{new}"
                     )
