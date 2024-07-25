@@ -60,7 +60,7 @@ class Renamer(QObject):
                     )
                 else:
                     temp = str(PurePath(file).name).split(self._schar)
-                    join_array = (temp[0], temp[1], temp[3])
+                    join_array = (temp[0], temp[1], temp[-2])
                     new = self._schar.join(join_array)
                     newFile = file.parent.joinpath(
                         f"{new}"
